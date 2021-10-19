@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Objects;
 
 public class MyHashMap<K, V> {
 
@@ -44,12 +45,20 @@ public class MyHashMap<K, V> {
         }
 
         @Override
+        public final boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Node<?, ?> that = (Node<?, ?>) o;
+            return Objects.equals(key, that.key);
+        }
+
+        @Override
         public String toString() {
             return key + "=" + value;
         }
     }
 
-    public int hash(Object key) {
+    public int hash(K key) {
         int h;
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
@@ -59,46 +68,29 @@ public class MyHashMap<K, V> {
         return index;
     }
 
-    public void put(Object key, Object value) {
-        if (key == null) {
-            putForNullKey((V) value);
-            return;
-        }
-        int hash = hash(key);
-        int index = indexFor(hash, buckets.length);
-        addNode((K) key, (V) value, hash, index);
-    }
+    public void put(K key, V value) {
+        Node<K, V> newElement = new Node<>(key, value, hash(key), null);
+        int index = getIndex(newElement.getKey());
 
-    private void addNode(K key, V value, int hash, int index) {
-        Node<K, V> newNode = new Node(key, value, hash, null);
-        Node<K, V> current = buckets[index];
-        if (current == null) {
-            buckets[index] = newNode;
+        if (buckets[index] == null) {
+            buckets[index] = newElement;
             size++;
-            return;
         } else {
-            do {
-                if (current.hashCode == hash && (current.key == key || key.equals(current.key))) {
-                    current.value = value;
-                    return;
+            if (buckets[index].equals(newElement)) {
+                buckets[index].setValue(newElement.getValue());
+            } else {
+                Node<K, V> element = buckets[index];
+                while (element.next != null) {
+                    if (element.next.getKey().equals(key)) {
+                        element.next.setValue(newElement.getValue());
+                        return;
+                    }
+                    element = element.next;
                 }
-                if (current.getNext() != null) {
-                    current = current.getNext();
-                } else {
-                    break;
-                }
-            } while (current != null);
-            current.setNext(newNode);
-            size++;
+                element.next = newElement;
+                size++;
+            }
         }
-    }
-
-    private void putForNullKey(V value) {
-        addNode(null, value, 0, 0);
-    }
-
-    private static int indexFor(int h, int length) {
-        return h & (length - 1);
     }
 
     public V remove(K key) {
@@ -152,7 +144,9 @@ public class MyHashMap<K, V> {
     }
 
     protected int getIndex(K key) {
-        if (key == null) return 0;
+        if (key == null) {
+            return 0;
+        }
 
         int hash = hash(key);
         return ((buckets.length - 1) & hash);
@@ -168,7 +162,7 @@ public class MyHashMap<K, V> {
     }
 
     public V get(Object key) {
-        int index = indexForArray(hash(key), DEFAULT_CAPACITY);
+        int index = indexForArray(hash((K) key), DEFAULT_CAPACITY);
         Node<K, V> node = buckets[index];
         for (Node<K, V> n = node; n != null; n = n.next) {
             if ((key == null && null == n.getKey()) || (key != null && key.equals(n.getKey()))) {

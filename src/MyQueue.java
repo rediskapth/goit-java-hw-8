@@ -35,7 +35,7 @@ public class MyQueue<T> {
         return rear;
     }
 
-    public void add(Object value) {
+    public void add(T value) {
         try {
             queue[++rear] = (T) value;
         } catch (ArrayIndexOutOfBoundsException e) {

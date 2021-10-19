@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class MyLinkedList<T> {
     private int size;
     private Node<T> first;
@@ -23,7 +25,7 @@ public class MyLinkedList<T> {
         }
     }
 
-    public void add(Object value) {
+    public void add(T value) {
         Node<T> lastNode = last;
         Node<T> newNode = new Node<T>(lastNode, (T) value, null);
         last = newNode;
@@ -73,8 +75,8 @@ public class MyLinkedList<T> {
     }
 
     public Node<T> get(int index) {
+        Objects.checkIndex(index, size);
         Node<T> searchNode = first;
-        if (index < 0 || index > size) throw new java.lang.ArrayIndexOutOfBoundsException("No such Index");
         for (int i = 0; i < index; i++) {
             searchNode = searchNode.next;
         }

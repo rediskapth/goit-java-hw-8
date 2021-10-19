@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Objects;
 
 public class MyArrayList<T> {
     private T[] array;
@@ -13,7 +14,7 @@ public class MyArrayList<T> {
         this.array = (T[]) new Object[DEFAULT_CAPACITY];
     }
 
-    public T[] add(Object value) {
+    public T[] add(T value) {
         if (size == array.length) {
             ensureCapacity();
         }
@@ -50,7 +51,7 @@ public class MyArrayList<T> {
     }
 
     public T get(int index) {
-        if (index < 0 || index >= array.length) throw new java.lang.ArrayIndexOutOfBoundsException("No such Index");
+        Objects.checkIndex(index, size);
             return array[index];
     }
 
